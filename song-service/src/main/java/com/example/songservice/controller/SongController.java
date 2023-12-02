@@ -2,6 +2,7 @@ package com.example.songservice.controller;
 
 import com.example.songservice.model.Song;
 import com.example.songservice.service.SongService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController("/songs")
+@RestController
+@RequestMapping("/songs")
 public class SongController {
 
     private final SongService songService;
@@ -19,9 +21,8 @@ public class SongController {
         this.songService = songService;
     }
 
-    //todo add ExceptionHandler
-    @PostMapping()
-    public ResponseEntity<Long> uploadNewResource(@RequestBody Song song) {
+    @PostMapping
+    public ResponseEntity<Long> uploadNewSong(@Valid @RequestBody Song song) {
 
         Long id = songService.addSong(song);
 
@@ -29,7 +30,7 @@ public class SongController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Song> getResourceById(@PathVariable long id) {
+    public ResponseEntity<Song> getSongById(@PathVariable long id) {
 
         Song songById = songService.getSongById(id);
 
@@ -37,7 +38,7 @@ public class SongController {
     }
 
     @DeleteMapping
-    public List<Long> deleteUser(@RequestParam(value = "ids") List<Long> ids) {
+    public List<Long> deleteSong(@RequestParam(value = "ids") List<Long> ids) {
 
         return songService.deleteSongsByIds(ids);
     }
