@@ -1,10 +1,11 @@
-package com.example.model;
+package com.example.songservice.model;
 
-import lombok.Builder;
+import lombok.Data;
 
-@Builder
+@Data
 public class Song {
 
+    private Long id;
     private String name;
     private String artist;
     private String album;

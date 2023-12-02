@@ -1,4 +1,4 @@
-package com.example.service;
+package com.example.songservice.service;
 
 import org.springframework.web.multipart.MultipartFile;
 

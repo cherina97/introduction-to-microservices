@@ -1,6 +1,6 @@
-package com.example.repository;
+package com.example.songservice.repository;
 
-import com.example.model.Resource;
+import com.example.songservice.model.Resource;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

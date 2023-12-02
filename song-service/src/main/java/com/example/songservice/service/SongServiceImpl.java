@@ -1,7 +1,7 @@
-package com.example.service;
+package com.example.songservice.service;
 
-import com.example.model.Song;
-import com.example.repository.SongRepository;
+import com.example.songservice.model.Song;
+import com.example.songservice.repository.SongRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

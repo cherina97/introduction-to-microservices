@@ -1,7 +1,7 @@
-package com.example;
+package com.example.songservice.controller;
 
-import com.example.model.Song;
-import com.example.service.SongService;
+import com.example.songservice.model.Song;
+import com.example.songservice.service.SongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
-package com.example.parser;
+package com.example.songservice.parser;
 
-import com.example.model.Song;
+import com.example.songservice.model.Song;
 import lombok.SneakyThrows;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;

@@ -1,8 +1,8 @@
-package com.example.service;
+package com.example.songservice.service;
 
-import com.example.model.Resource;
-import com.example.parser.ResourceParser;
-import com.example.repository.ResourceRepository;
+import com.example.songservice.model.Resource;
+import com.example.songservice.parser.ResourceParser;
+import com.example.songservice.repository.ResourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

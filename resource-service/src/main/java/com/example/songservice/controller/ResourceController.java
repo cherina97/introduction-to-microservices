@@ -1,6 +1,6 @@
-package com.example.controller;
+package com.example.songservice.controller;
 
-import com.example.service.ResourceService;
+import com.example.songservice.service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;

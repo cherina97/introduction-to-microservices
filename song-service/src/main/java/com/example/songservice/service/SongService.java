@@ -1,6 +1,6 @@
-package com.example.service;
+package com.example.songservice.service;
 
-import com.example.model.Song;
+import com.example.songservice.model.Song;
 
 import java.util.List;
 
