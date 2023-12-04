@@ -2,7 +2,6 @@ package com.example.songservice.controller;
 
 import com.example.songservice.service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +22,8 @@ public class ResourceController {
         this.resourceService = resourceService;
     }
 
-    //todo add ExceptionHandler
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Long> uploadNewResource(MultipartFile data) throws IOException {
+    public ResponseEntity<Long> uploadNewResource(@RequestParam("file") MultipartFile data) throws IOException {
 
         //todo Invoke Song Service to save mp3 file metadata
         Long id = resourceService.uploadNewResource(data);
@@ -34,15 +32,15 @@ public class ResourceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ByteArrayResource> getResourceById(@PathVariable long id) {
+    public ResponseEntity<?> getResourceById(@PathVariable long id) {
 
         byte[] resourceData = resourceService.getResourceData(id);
 
-        return new ResponseEntity<>(new ByteArrayResource(resourceData), HttpStatus.OK);
+        return new ResponseEntity<>(resourceData, HttpStatus.OK);
     }
 
     @DeleteMapping
-    public List<Long> deleteUser(@RequestParam(value = "ids") List<Long> ids) {
+    public List<Long> deleteResource(@RequestParam(value = "ids") List<Long> ids) {
 
         return resourceService.deleteResources(ids);
     }

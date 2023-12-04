@@ -8,17 +8,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({SongNotFoundException.class})
-    public ResponseEntity<Object> handleSongNotFoundException(SongNotFoundException exception) {
+    @ExceptionHandler({InvalidFileFormatException.class})
+    public ResponseEntity<Object> invalidFileFormatExceptionException(InvalidFileFormatException exception) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(exception.getMessage());
-    }
-
-    @ExceptionHandler({SongAlreadyExistsException.class})
-    public ResponseEntity<Object> handleSongAlreadyExistsException(SongAlreadyExistsException exception) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(exception.getMessage());
     }
 
@@ -28,4 +21,13 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(exception.getMessage());
     }
+
+    @ExceptionHandler({ResourceNotFoundException.class})
+    public ResponseEntity<Object> handleResourceNotFoundExceptionException(ResourceNotFoundException exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
+    }
+
+    //todo handle 500 error
 }
