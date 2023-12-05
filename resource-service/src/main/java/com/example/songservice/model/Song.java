@@ -1,8 +1,11 @@
 package com.example.songservice.model;
 
-import lombok.Builder;
+import lombok.*;
 
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class Song {
 
     private String name;

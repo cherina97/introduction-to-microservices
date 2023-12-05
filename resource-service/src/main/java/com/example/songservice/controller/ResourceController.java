@@ -1,12 +1,14 @@
 package com.example.songservice.controller;
 
 import com.example.songservice.service.ResourceService;
+import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,9 +25,8 @@ public class ResourceController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Long> uploadNewResource(@RequestParam("file") MultipartFile data) throws IOException {
+    public ResponseEntity<Long> uploadNewResource(@RequestParam("file") MultipartFile data) throws IOException, TikaException, SAXException {
 
-        //todo Invoke Song Service to save mp3 file metadata
         Long id = resourceService.uploadNewResource(data);
 
         return new ResponseEntity<>(id, HttpStatus.OK);

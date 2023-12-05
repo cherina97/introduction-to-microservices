@@ -28,6 +28,4 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(exception.getMessage());
     }
-
-    //todo handle 500 error
 }
