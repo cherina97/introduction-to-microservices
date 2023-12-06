@@ -1,11 +1,11 @@
-package com.example.songservice.service;
+package com.example.resourceservice.service;
 
-import com.example.songservice.exception.InvalidFileFormatException;
-import com.example.songservice.exception.ResourceNotFoundException;
-import com.example.songservice.model.Resource;
-import com.example.songservice.model.Song;
-import com.example.songservice.parser.ResourceParser;
-import com.example.songservice.repository.ResourceRepository;
+import com.example.resourceservice.repository.ResourceRepository;
+import com.example.resourceservice.exception.InvalidFileFormatException;
+import com.example.resourceservice.exception.ResourceNotFoundException;
+import com.example.resourceservice.model.Resource;
+import com.example.resourceservice.model.Song;
+import com.example.resourceservice.parser.ResourceParser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;

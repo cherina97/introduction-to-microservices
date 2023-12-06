@@ -1,6 +1,6 @@
-package com.example.songservice.parser;
+package com.example.resourceservice.parser;
 
-import com.example.songservice.model.Song;
+import com.example.resourceservice.model.Song;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;

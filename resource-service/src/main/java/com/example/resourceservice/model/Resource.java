@@ -1,4 +1,4 @@
-package com.example.songservice.model;
+package com.example.resourceservice.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

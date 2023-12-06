@@ -1,4 +1,4 @@
-package com.example.songservice.exception;
+package com.example.resourceservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

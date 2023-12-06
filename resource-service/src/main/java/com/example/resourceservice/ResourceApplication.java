@@ -1,4 +1,4 @@
-package com.example.songservice;
+package com.example.resourceservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

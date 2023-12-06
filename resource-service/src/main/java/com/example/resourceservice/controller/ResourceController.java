@@ -1,6 +1,6 @@
-package com.example.songservice.controller;
+package com.example.resourceservice.controller;
 
-import com.example.songservice.service.ResourceService;
+import com.example.resourceservice.service.ResourceService;
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

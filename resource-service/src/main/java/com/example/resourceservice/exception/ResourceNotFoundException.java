@@ -1,4 +1,4 @@
-package com.example.songservice.exception;
+package com.example.resourceservice.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

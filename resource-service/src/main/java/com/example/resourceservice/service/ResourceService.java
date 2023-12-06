@@ -1,4 +1,4 @@
-package com.example.songservice.service;
+package com.example.resourceservice.service;
 
 import org.apache.tika.exception.TikaException;
 import org.springframework.web.multipart.MultipartFile;
