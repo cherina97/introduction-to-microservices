@@ -8,5 +8,3 @@ CREATE TABLE IF NOT EXISTS song
     resource_id INT    not null,
     year        varchar
 );
-
-drop table song;
