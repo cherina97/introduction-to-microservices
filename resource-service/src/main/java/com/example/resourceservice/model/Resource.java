@@ -13,7 +13,6 @@ public class Resource {
     @Column
     private Long id;
 
-    @Lob
     @Column
     private byte[] data;
 

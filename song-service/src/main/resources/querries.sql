@@ -1,10 +1,12 @@
 CREATE TABLE IF NOT EXISTS song
 (
     id          serial not null primary key,
-    name        varchar(100),
-    artist      varchar(100),
-    album       varchar(100),
-    duration    varchar(100),
+    name        varchar,
+    artist      varchar,
+    album       varchar,
+    duration    varchar,
     resource_id INT    not null,
-    year        varchar(4)
+    year        varchar
 );
+
+drop table song;

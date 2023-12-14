@@ -45,4 +45,9 @@ public class ResourceController {
 
         return resourceService.deleteResources(ids);
     }
+
+    @GetMapping()
+    public ResponseEntity<List<Long>> getAllResources() {
+        return new ResponseEntity<>(resourceService.getAllResourcesIds(), HttpStatus.OK);
+    }
 }

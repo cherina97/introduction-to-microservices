@@ -8,7 +8,7 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class ResourceConfig {
 
-    @Value("${resourceCallSong.url}")
+    @Value("${song.service.url}")
     private String addressBaseUrl;
 
     @Bean

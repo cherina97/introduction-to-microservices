@@ -14,4 +14,6 @@ public interface ResourceService {
     byte[] getResourceData(Long id);
 
     List<Long> deleteResources(List<Long> ids);
+
+    List<Long> getAllResourcesIds();
 }

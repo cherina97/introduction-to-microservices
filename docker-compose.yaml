@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  song-service:
+    image: 'song-service:latest'
+    container_name: 'song-service-container'
+    ports:
+      - '8080:8080'
+    depends_on:
+      - song-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://song-db/song
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=password
+
+  song-db:
+    image: 'postgres:13'
+    container_name: song-db
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=song
+
+  resource-service:
+    image: 'resource-service:latest'
+    container_name: 'resource-service-container'
+    ports:
+      - '8081:8081'
+    depends_on:
+      - resource-db
+      - song-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://resource-db/resource
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_SERVLET_MULTIPART_MAX-FILE-SIZE=10MB
+      - SPRING_SERVLET_MULTIPART_MAX-REQUEST-SIZE=10MB
+      - SONG_SERVICE_URL=http://song-service:8080/songs
+
+  resource-db:
+    image: 'postgres:13'
+    container_name: resource-db
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=resource

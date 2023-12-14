@@ -42,4 +42,9 @@ public class SongController {
 
         return songService.deleteSongsByIds(ids);
     }
+
+    @GetMapping()
+    public ResponseEntity<List<Long>> getAllSongs() {
+        return new ResponseEntity<>(songService.getAllSongsIds(), HttpStatus.OK);
+    }
 }

@@ -58,4 +58,12 @@ public class SongServiceImpl implements SongService {
         songRepository.deleteAll(songsToDelete);
         return songsToDelete.stream().map(Song::getId).collect(Collectors.toList());
     }
+
+    @Override
+    public List<Long> getAllSongsIds() {
+        List<Song> allSongs = new ArrayList<>();
+        songRepository.findAll().iterator().forEachRemaining(allSongs::add);
+
+        return allSongs.stream().map(Song::getId).collect(Collectors.toList());
+    }
 }

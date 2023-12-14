@@ -11,4 +11,6 @@ public interface SongService {
     Song getSongById(Long id);
 
     List<Long> deleteSongsByIds(List<Long> ids);
+
+    List<Long> getAllSongsIds();
 }

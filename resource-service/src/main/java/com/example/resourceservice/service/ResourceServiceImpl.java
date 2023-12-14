@@ -1,11 +1,11 @@
 package com.example.resourceservice.service;
 
-import com.example.resourceservice.repository.ResourceRepository;
 import com.example.resourceservice.exception.InvalidFileFormatException;
 import com.example.resourceservice.exception.ResourceNotFoundException;
 import com.example.resourceservice.model.Resource;
 import com.example.resourceservice.model.Song;
 import com.example.resourceservice.parser.ResourceParser;
+import com.example.resourceservice.repository.ResourceRepository;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,5 +79,13 @@ public class ResourceServiceImpl implements ResourceService {
         resourceRepository.deleteAll(resourcesToDelete);
 
         return resourcesToDelete.stream().map(Resource::getId).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Long> getAllResourcesIds() {
+        List<Resource> allResources = new ArrayList<>();
+        resourceRepository.findAll().iterator().forEachRemaining(allResources::add);
+
+        return allResources.stream().map(Resource::getId).collect(Collectors.toList());
     }
 }
