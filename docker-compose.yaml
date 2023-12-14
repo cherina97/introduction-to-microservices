@@ -8,20 +8,16 @@ services:
       - '8080:8080'
     depends_on:
       - song-db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://song-db/song
-      - SPRING_DATASOURCE_USERNAME=user
-      - SPRING_DATASOURCE_PASSWORD=password
+    env_file:
+      - song-service/.env
 
   song-db:
     image: 'postgres:13'
     container_name: song-db
     ports:
       - '5432:5432'
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=song
+    env_file:
+      - song-service/.env
 
   resource-service:
     image: 'resource-service:latest'
@@ -31,20 +27,13 @@ services:
     depends_on:
       - resource-db
       - song-service
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://resource-db/resource
-      - SPRING_DATASOURCE_USERNAME=user
-      - SPRING_DATASOURCE_PASSWORD=password
-      - SPRING_SERVLET_MULTIPART_MAX-FILE-SIZE=10MB
-      - SPRING_SERVLET_MULTIPART_MAX-REQUEST-SIZE=10MB
-      - SONG_SERVICE_URL=http://song-service:8080/songs
+    env_file:
+      - resource-service/.env
 
   resource-db:
     image: 'postgres:13'
     container_name: resource-db
     ports:
       - '5433:5432'
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=resource
+    env_file:
+      - resource-service/.env
