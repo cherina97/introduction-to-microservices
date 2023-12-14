@@ -4,6 +4,8 @@ services:
   song-service:
     image: 'song-service:latest'
     container_name: 'song-service-container'
+    build:
+      context: song-service
     ports:
       - '8080:8080'
     depends_on:
@@ -18,10 +20,14 @@ services:
       - '5432:5432'
     env_file:
       - song-service/.env
+    volumes:
+      - ./song-service/song-init.sql:/docker-entrypoint-initdb.d/song-init.sql
 
   resource-service:
     image: 'resource-service:latest'
     container_name: 'resource-service-container'
+    build:
+      context: resource-service
     ports:
       - '8081:8081'
     depends_on:
@@ -37,3 +43,5 @@ services:
       - '5433:5432'
     env_file:
       - resource-service/.env
+    volumes:
+      - ./resource-service/resource-init.sql:/docker-entrypoint-initdb.d/resource-init.sql
