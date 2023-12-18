@@ -29,7 +29,7 @@ services:
     build:
       context: resource-service
     ports:
-      - '8081:8081'
+      - '8081:8080'
     depends_on:
       - resource-db
       - song-service
