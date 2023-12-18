@@ -13,6 +13,7 @@
     <modules>
         <module>resource-service</module>
         <module>song-service</module>
+        <module>service-discovery</module>
     </modules>
 
 </project>
