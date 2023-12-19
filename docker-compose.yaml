@@ -1,15 +1,45 @@
 version: '3'
 
 services:
+  service-discovery:
+    build:
+      context: service-discovery
+    image: 'service-discovery:latest'
+    container_name: 'service-discovery'
+    ports:
+      - '8761:8761'
+    env_file:
+      - service-discovery/.env
+
+
+  gateway-service:
+    build:
+      context: gateway-service
+    image: 'gateway-service:latest'
+    container_name: 'gateway-service'
+    depends_on:
+      - service-discovery
+    ports:
+      - '8090:8090'
+    env_file:
+      - gateway-service/.env
+
+
   song-service:
     image: 'song-service:latest'
     container_name: 'song-service-container'
     build:
       context: song-service
+    #    deploy:
+    #      mode: replicated
+    #      replicas: 2
     ports:
       - '8080:8080'
+    #        '8070-8071:8080'
     depends_on:
       - song-db
+      - service-discovery
+      - gateway-service
     env_file:
       - song-service/.env
 
@@ -23,6 +53,7 @@ services:
     volumes:
       - ./song-service/song-init.sql:/docker-entrypoint-initdb.d/song-init.sql
 
+
   resource-service:
     image: 'resource-service:latest'
     container_name: 'resource-service-container'
@@ -33,6 +64,8 @@ services:
     depends_on:
       - resource-db
       - song-service
+      - service-discovery
+      - gateway-service
     env_file:
       - resource-service/.env
 
