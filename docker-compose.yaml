@@ -35,7 +35,7 @@ services:
     #      replicas: 2
     ports:
       - '8080:8080'
-    #        '8070-8071:8080'
+    #        '8081-8083:8080'
     depends_on:
       - song-db
       - service-discovery
