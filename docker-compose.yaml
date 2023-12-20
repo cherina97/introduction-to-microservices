@@ -20,22 +20,20 @@ services:
     depends_on:
       - service-discovery
     ports:
-      - '8090:8090'
+      - '8090:8080'
     env_file:
       - gateway-service/.env
 
 
   song-service:
     image: 'song-service:latest'
-    container_name: 'song-service-container'
     build:
       context: song-service
-    #    deploy:
-    #      mode: replicated
-    #      replicas: 2
+    deploy:
+      mode: replicated
+      replicas: 2
     ports:
-      - '8080:8080'
-    #        '8081-8083:8080'
+      - '8082-8083:8080'
     depends_on:
       - song-db
       - service-discovery
