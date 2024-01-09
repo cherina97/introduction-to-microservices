@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface ResourceService {
 
-    Long uploadNewResource(MultipartFile data) throws IOException, TikaException, SAXException;
+    Long uploadNewResource(MultipartFile file) throws IOException, TikaException, SAXException;
 
-    byte[] getResourceData(Long id);
+    byte[] getResourceById(Long id);
 
     List<Long> deleteResources(List<Long> ids);
 

@@ -28,27 +28,31 @@ public class ResourceServiceImpl implements ResourceService {
     private final ResourceRepository resourceRepository;
     private final ResourceParser resourceParser;
     private final RestClient restClient;
+    private final S3Service s3Service;
 
     @Autowired
-    public ResourceServiceImpl(ResourceRepository resourceRepository, ResourceParser resourceParser, RestClient restClient) {
+    public ResourceServiceImpl(ResourceRepository resourceRepository, ResourceParser resourceParser, RestClient restClient, S3Service s3Service) {
         this.resourceRepository = resourceRepository;
         this.resourceParser = resourceParser;
         this.restClient = restClient;
+        this.s3Service = s3Service;
     }
 
     @Override
-    public Long uploadNewResource(MultipartFile data) throws IOException, TikaException, SAXException {
+    public Long uploadNewResource(MultipartFile file) throws IOException, TikaException, SAXException {
 
-        if (!Objects.equals(FilenameUtils.getExtension(data.getOriginalFilename()), "mp3")) {
+        if (!Objects.equals(FilenameUtils.getExtension(file.getOriginalFilename()), "mp3")) {
             throw new InvalidFileFormatException("File should have .mp3 extension");
         }
 
         Resource resource = new Resource();
-        resource.setData(data.getBytes());
+        resource.setData(file.getBytes());
 
         Resource savedResource = resourceRepository.save(resource);
 
-        callSongService(data, savedResource);
+        s3Service.addResource(file);
+
+        callSongService(file, savedResource);
 
         return savedResource.getId();
     }
@@ -63,7 +67,7 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public byte[] getResourceData(Long id) {
+    public byte[] getResourceById(Long id) {
         return resourceRepository.findById(id).map(Resource::getData)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found by id = " + id));
     }

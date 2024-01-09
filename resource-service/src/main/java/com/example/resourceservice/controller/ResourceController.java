@@ -35,7 +35,7 @@ public class ResourceController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getResourceById(@PathVariable long id) {
 
-        byte[] resourceData = resourceService.getResourceData(id);
+        byte[] resourceData = resourceService.getResourceById(id);
 
         return new ResponseEntity<>(resourceData, HttpStatus.OK);
     }
