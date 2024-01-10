@@ -16,28 +16,17 @@ import java.util.stream.Collectors;
 @Service
 public class S3ServiceImpl implements S3Service {
 
-    //todo move to .env
-    private static final String bucketName = "songs";
+    private static final String bucketName = "resources";
 
     private final AmazonS3 amazonS3;
 
     @Autowired
     public S3ServiceImpl(AmazonS3 amazonS3) {
         this.amazonS3 = amazonS3;
-//        initBucket();
     }
-
-//    private void initBucket() {
-//        if (!amazonS3.doesBucketExistV2(S3ServiceImpl.bucketName)) {
-//            amazonS3.createBucket(S3ServiceImpl.bucketName);
-//        }
-//    }
 
     @Override
     public String addResource(MultipartFile file) throws IOException {
-
-        amazonS3.createBucket(S3ServiceImpl.bucketName);
-
         String key = file.getOriginalFilename();
         InputStream inputStream = file.getInputStream();
 

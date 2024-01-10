@@ -1,6 +1,21 @@
 version: '3'
 
 services:
+  localstack:
+    container_name: "localstack"
+    image: localstack/localstack:latest
+    ports:
+      - '4566:4566'
+    environment:
+      - SERVICES=s3:4566
+      - DEFAULT_REGION=us-east-1
+      - LOCALSTACK_HOST=localhost
+      - DEBUG=1
+    env_file:
+      - resource-service/.env
+    volumes:
+      - ./resource-service/init_s3.sh:/etc/localstack/init/ready.d/init_s3.sh
+
   service-discovery:
     build:
       context: service-discovery
