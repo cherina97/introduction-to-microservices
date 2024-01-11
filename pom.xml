@@ -8,13 +8,14 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>introduction-to-microservices</name>
-    <description>Project for &quot;introduction to microservices&quot; Course</description>
+    <description>Project for &quot;Introduction to microservices/Microservices fundamentals&quot; Courses</description>
 
     <modules>
         <module>resource-service</module>
         <module>song-service</module>
         <module>service-discovery</module>
         <module>gateway-service</module>
+        <module>resource-processor</module>
     </modules>
 
 </project>
