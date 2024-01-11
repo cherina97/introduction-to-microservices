@@ -9,8 +9,8 @@ public interface S3Service {
 
     String addResource(MultipartFile file) throws IOException;
 
-    byte[] getResourceById(String key) throws IOException;
+    void deleteResources(List<String> ids);
 
-    List<String> deleteResources(List<String> ids);
+    List<String> getAllResourcesInBucket(String bucketName);
 
 }

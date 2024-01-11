@@ -11,7 +11,7 @@ public interface ResourceService {
 
     Long uploadNewResource(MultipartFile file) throws IOException, TikaException, SAXException;
 
-    byte[] getResourceById(Long id);
+    String getResourceKeyById(Long id);
 
     List<Long> deleteResources(List<Long> ids);
 

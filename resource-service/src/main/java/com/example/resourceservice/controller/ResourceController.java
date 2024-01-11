@@ -1,6 +1,7 @@
 package com.example.resourceservice.controller;
 
 import com.example.resourceservice.service.ResourceService;
+import com.example.resourceservice.service.S3Service;
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,10 +19,12 @@ import java.util.List;
 public class ResourceController {
 
     private final ResourceService resourceService;
+    private final S3Service s3Service;
 
     @Autowired
-    public ResourceController(ResourceService resourceService) {
+    public ResourceController(ResourceService resourceService, S3Service s3Service) {
         this.resourceService = resourceService;
+        this.s3Service = s3Service;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -35,19 +38,23 @@ public class ResourceController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getResourceById(@PathVariable long id) {
 
-        byte[] resourceData = resourceService.getResourceById(id);
+        String key = resourceService.getResourceKeyById(id);
 
-        return new ResponseEntity<>(resourceData, HttpStatus.OK);
+        return new ResponseEntity<>(key, HttpStatus.OK);
     }
 
     @DeleteMapping
     public List<Long> deleteResource(@RequestParam(value = "ids") List<Long> ids) {
-
         return resourceService.deleteResources(ids);
     }
 
     @GetMapping()
     public ResponseEntity<List<Long>> getAllResources() {
         return new ResponseEntity<>(resourceService.getAllResourcesIds(), HttpStatus.OK);
+    }
+
+    @GetMapping("/s3/{bucketName}")
+    public ResponseEntity<List<String>> getAllResourcesInStorage(@PathVariable String bucketName) {
+        return new ResponseEntity<>(s3Service.getAllResourcesInBucket(bucketName), HttpStatus.OK);
     }
 }

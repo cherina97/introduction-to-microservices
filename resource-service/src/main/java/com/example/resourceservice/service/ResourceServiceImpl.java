@@ -45,15 +45,17 @@ public class ResourceServiceImpl implements ResourceService {
             throw new InvalidFileFormatException("File should have .mp3 extension");
         }
 
-        Resource resource = new Resource();
-        resource.setData(file.getBytes());
+        //save the source file to a cloud storage
+        String bucketName = s3Service.addResource(file);
 
+        Resource resource = new Resource();
+        resource.setBucket(bucketName);
+        resource.setResourceKey(file.getOriginalFilename());
+
+        //save resource location (bucket + name)
         Resource savedResource = resourceRepository.save(resource);
 
-        s3Service.addResource(file);
-
-        callSongService(file, savedResource);
-
+//        callSongService(file, savedResource);
         return savedResource.getId();
     }
 
@@ -67,8 +69,9 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public byte[] getResourceById(Long id) {
-        return resourceRepository.findById(id).map(Resource::getData)
+    public String getResourceKeyById(Long id) {
+        return resourceRepository.findById(id)
+                .map(Resource::getResourceKey)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found by id = " + id));
     }
 
@@ -81,6 +84,9 @@ public class ResourceServiceImpl implements ResourceService {
         }
 
         resourceRepository.deleteAll(resourcesToDelete);
+
+        List<String> keyToDelete = resourcesToDelete.stream().map(Resource::getResourceKey).toList();
+        s3Service.deleteResources(keyToDelete);
 
         return resourcesToDelete.stream().map(Resource::getId).collect(Collectors.toList());
     }

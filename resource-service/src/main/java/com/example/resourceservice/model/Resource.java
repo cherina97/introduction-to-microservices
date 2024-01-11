@@ -14,6 +14,9 @@ public class Resource {
     private Long id;
 
     @Column
-    private byte[] data;
+    private String bucket;
+
+    @Column(name = "resource_key")
+    private String resourceKey;
 
 }
