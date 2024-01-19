@@ -3,16 +3,13 @@ package com.example.resourceservice.service;
 import com.example.resourceservice.exception.InvalidFileFormatException;
 import com.example.resourceservice.exception.ResourceNotFoundException;
 import com.example.resourceservice.model.Resource;
-import com.example.resourceservice.model.Song;
-import com.example.resourceservice.parser.ResourceParser;
 import com.example.resourceservice.repository.ResourceRepository;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,26 +17,25 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-
 @Service
 public class ResourceServiceImpl implements ResourceService {
 
     private final ResourceRepository resourceRepository;
-    private final ResourceParser resourceParser;
-    private final RestClient restClient;
     private final S3Service s3Service;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+    @Value("${kafka.topic}")
+    private String topic;
 
     @Autowired
-    public ResourceServiceImpl(ResourceRepository resourceRepository, ResourceParser resourceParser, RestClient restClient, S3Service s3Service) {
+    public ResourceServiceImpl(ResourceRepository resourceRepository, S3Service s3Service, KafkaTemplate<String, String> kafkaTemplate) {
         this.resourceRepository = resourceRepository;
-        this.resourceParser = resourceParser;
-        this.restClient = restClient;
         this.s3Service = s3Service;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
-    public Long uploadNewResource(MultipartFile file) throws IOException, TikaException, SAXException {
+    public Long uploadNewResource(MultipartFile file) throws IOException {
 
         if (!Objects.equals(FilenameUtils.getExtension(file.getOriginalFilename()), "mp3")) {
             throw new InvalidFileFormatException("File should have .mp3 extension");
@@ -55,17 +51,10 @@ public class ResourceServiceImpl implements ResourceService {
         //save resource location (bucket + name)
         Resource savedResource = resourceRepository.save(resource);
 
-//        callSongService(file, savedResource);
-        return savedResource.getId();
-    }
+        //pass message to the topic
+        kafkaTemplate.send(topic, savedResource.getId().toString());
 
-    private void callSongService(MultipartFile data, Resource savedResource) throws IOException, TikaException, SAXException {
-        Song parsedSong = resourceParser.parse(data, savedResource.getId());
-        restClient.post()
-                .contentType(APPLICATION_JSON)
-                .body(parsedSong)
-                .retrieve()
-                .toBodilessEntity();
+        return savedResource.getId();
     }
 
     @Override
@@ -73,6 +62,16 @@ public class ResourceServiceImpl implements ResourceService {
         return resourceRepository.findById(id)
                 .map(Resource::getResourceKey)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found by id = " + id));
+    }
+
+    @Override
+    public byte[] getResourceFromBucket(String resourceId) throws IOException {
+        long id = Long.parseLong(resourceId);
+
+        Resource resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found by id = " + id));
+
+        return s3Service.getResource(resource.getResourceKey());
     }
 
     @Override

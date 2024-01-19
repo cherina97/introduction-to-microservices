@@ -3,8 +3,10 @@ package com.example.resourceservice.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +18,8 @@ import java.util.stream.Collectors;
 @Service
 public class S3ServiceImpl implements S3Service {
 
-    private static final String bucketName = "resources";
+    @Value("${s3.bucket}")
+    private String bucketName;
     private final AmazonS3 amazonS3;
 
     @Autowired
@@ -36,6 +39,13 @@ public class S3ServiceImpl implements S3Service {
         amazonS3.putObject(bucketName, key, inputStream, metadata);
 
         return bucketName;
+    }
+
+    @Override
+    public byte[] getResource(String key) throws IOException {
+        S3Object amazonS3Object = amazonS3.getObject(bucketName, key);
+
+        return amazonS3Object.getObjectContent().readAllBytes();
     }
 
     @Override

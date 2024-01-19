@@ -29,17 +29,13 @@ public class ResourceController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Long> uploadNewResource(@RequestParam("file") MultipartFile data) throws IOException, TikaException, SAXException {
-
         Long id = resourceService.uploadNewResource(data);
-
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getResourceById(@PathVariable long id) {
-
         String key = resourceService.getResourceKeyById(id);
-
         return new ResponseEntity<>(key, HttpStatus.OK);
     }
 
@@ -53,8 +49,13 @@ public class ResourceController {
         return new ResponseEntity<>(resourceService.getAllResourcesIds(), HttpStatus.OK);
     }
 
-    @GetMapping("/s3/{bucketName}")
+    @GetMapping("/s3/bucket/{bucketName}")
     public ResponseEntity<List<String>> getAllResourcesInStorage(@PathVariable String bucketName) {
         return new ResponseEntity<>(s3Service.getAllResourcesInBucket(bucketName), HttpStatus.OK);
+    }
+
+    @GetMapping("/s3/{id}")
+    public ResponseEntity<?> getResourceFromStorage(@PathVariable String id) throws IOException, TikaException, SAXException {
+        return new ResponseEntity<>(resourceService.getResourceFromBucket(id), HttpStatus.OK);
     }
 }

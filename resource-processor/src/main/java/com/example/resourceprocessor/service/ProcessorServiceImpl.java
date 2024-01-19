@@ -1,46 +1,50 @@
 package com.example.resourceprocessor.service;
 
 import com.example.resourceprocessor.model.Song;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.parser.mp3.Mp3Parser;
-import org.apache.tika.sax.BodyContentHandler;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.client.RestClient;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.io.InputStream;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
+@Slf4j
 @Service
-public class ProcessorServiceImpl implements ProcessorService {
+public class ProcessorServiceImpl extends AbstractSongParser {
 
-    private static final String NAME = "dc:title";
-    private static final String ARTIST = "xmpDM:artist";
-    private static final String ALBUM = "xmpDM:album";
-    private static final String DURATION = "xmpDM:duration";
-    private static final String YEAR = "xmpDM:releaseDate";
+    private final RestClient restClientCallResources = RestClient.create("http://gateway-service:8080/resources/s3");
+    private final RestClient restClientCallSongs = RestClient.builder().baseUrl("http://gateway-service:8080/songs")
+            .messageConverters(converters -> converters.add(new MappingJackson2HttpMessageConverter()))
+            .build();
 
-    @Override
-    public Song parseFile(MultipartFile file, Long resourceId) throws IOException, TikaException, SAXException {
+    @KafkaListener(topics = "resource-topic", groupId = "processor")
+    public void consume(String resourceId) throws TikaException, IOException, SAXException {
 
-        InputStream inputStream = file.getInputStream();
+        byte[] bytes = callResourceService(resourceId);
+        Song parsedSong = parseBytes(bytes, Long.parseLong(resourceId));
 
-        BodyContentHandler handler = new BodyContentHandler();
-        Metadata metadata = new Metadata();
-        ParseContext parseContext = new ParseContext();
-        Parser parser = new Mp3Parser();
+        callSongService(parsedSong);
+    }
 
-        parser.parse(inputStream, handler, metadata, parseContext);
+    private byte[] callResourceService(String resourceId) {
+        return restClientCallResources.get()
+                .uri("/" + resourceId)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(byte[].class);
+    }
 
-        return new Song(
-                metadata.get(NAME),
-                metadata.get(ARTIST),
-                metadata.get(ALBUM),
-                metadata.get(DURATION),
-                metadata.get(YEAR),
-                resourceId);
+    private void callSongService(Song parsedSong) {
+        restClientCallSongs.post()
+                .contentType(APPLICATION_JSON)
+                .body(parsedSong)
+                .retrieve()
+                .toBodilessEntity();
     }
 }

@@ -13,4 +13,6 @@ public interface S3Service {
 
     List<String> getAllResourcesInBucket(String bucketName);
 
+    byte[] getResource(String key) throws IOException;
+
 }

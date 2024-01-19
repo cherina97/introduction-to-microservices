@@ -1,21 +1,19 @@
-package com.example.resourceservice.parser;
+package com.example.resourceprocessor.service;
 
-import com.example.resourceservice.model.Song;
+import com.example.resourceprocessor.model.Song;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.mp3.Mp3Parser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-@Component
-public class ResourceParser {
+public abstract class AbstractSongParser implements ProcessorService {
 
     private static final String NAME = "dc:title";
     private static final String ARTIST = "xmpDM:artist";
@@ -23,9 +21,9 @@ public class ResourceParser {
     private static final String DURATION = "xmpDM:duration";
     private static final String YEAR = "xmpDM:releaseDate";
 
-    public Song parse(MultipartFile file, Long resourceId) throws IOException, TikaException, SAXException {
+    protected Song parseBytes(byte[] file, Long resourceId) throws IOException, TikaException, SAXException {
 
-        InputStream inputStream = file.getInputStream();
+        InputStream inputStream = new ByteArrayInputStream(file);
 
         BodyContentHandler handler = new BodyContentHandler();
         Metadata metadata = new Metadata();

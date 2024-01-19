@@ -16,4 +16,7 @@ public interface ResourceService {
     List<Long> deleteResources(List<Long> ids);
 
     List<Long> getAllResourcesIds();
+
+    byte[] getResourceFromBucket(String resourceId) throws IOException, TikaException, SAXException;
+
 }

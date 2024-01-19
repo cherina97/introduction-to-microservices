@@ -1,8 +1,51 @@
 version: '3'
 
 services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - '2181:2181'
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:19091
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://:9092,EXTERNAL://localhost:19091
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - '9099:8080'
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      DYNAMIC_CONFIG_ENABLED: true
+
+  resource-processor:
+    image: 'resource-processor:latest'
+    container_name: 'resource-processor'
+    build:
+      context: resource-processor
+    ports:
+      - '8084:8080'
+    depends_on:
+      - resource-service
+      - kafka
+    env_file:
+      - resource-processor/.env
+
   localstack:
-    container_name: "localstack"
+    container_name: 'localstack'
     image: localstack/localstack:latest
     ports:
       - '4566:4566'
@@ -26,7 +69,6 @@ services:
     env_file:
       - service-discovery/.env
 
-
   gateway-service:
     build:
       context: gateway-service
@@ -39,14 +81,14 @@ services:
     env_file:
       - gateway-service/.env
 
-
   song-service:
     image: 'song-service:latest'
     build:
       context: song-service
-    deploy:
-      mode: replicated
-      replicas: 2
+    container_name: 'song-service'
+    #    deploy:
+    #      mode: replicated
+    #      replicas: 2
     ports:
       - '8082-8083:8080'
     depends_on:
@@ -66,10 +108,9 @@ services:
     volumes:
       - ./song-service/song-init.sql:/docker-entrypoint-initdb.d/song-init.sql
 
-
   resource-service:
     image: 'resource-service:latest'
-    container_name: 'resource-service-container'
+    container_name: 'resource-service'
     build:
       context: resource-service
     ports:
@@ -79,6 +120,8 @@ services:
       - song-service
       - service-discovery
       - gateway-service
+    #      - kafka
+    #      - zookeeper
     env_file:
       - resource-service/.env
 
