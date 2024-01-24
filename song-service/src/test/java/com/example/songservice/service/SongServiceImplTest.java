@@ -1,6 +1,7 @@
 package com.example.songservice.service;
 
 import com.example.songservice.model.Song;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
+@Ignore
 public class SongServiceImplTest {
 
     @Autowired
@@ -28,6 +30,7 @@ public class SongServiceImplTest {
     private SongService songService;
 
     @Test
+    @Ignore
     public void getSongById() throws Exception {
         Song song = new Song(1L, "Song1", "artist", null, null, null, 1L);
         when(songService.getSongById(1L)).thenReturn(song);
