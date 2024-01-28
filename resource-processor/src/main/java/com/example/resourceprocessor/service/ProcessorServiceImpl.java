@@ -1,11 +1,13 @@
 package com.example.resourceprocessor.service;
 
 import com.example.resourceprocessor.model.Song;
+import com.example.resourceprocessor.parser.SongParser;
 import io.github.resilience4j.decorators.Decorators;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -20,9 +22,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
 @Service
-public class ProcessorServiceImpl extends AbstractSongParser {
+public class ProcessorServiceImpl implements ProcessorService {
 
     private final RestClient restClient;
+    private final SongParser songParser;
 
     @Value("${url.call.resources}")
     private String callResource;
@@ -30,13 +33,17 @@ public class ProcessorServiceImpl extends AbstractSongParser {
     @Value("${url.call.songs}")
     private String callSongs;
 
-    public ProcessorServiceImpl(RestClient restClient) {
+    public ProcessorServiceImpl(RestClient restClient, SongParser songParser) {
         this.restClient = restClient;
+        this.songParser = songParser;
     }
 
     public void consume(String resourceId) throws TikaException, IOException, SAXException {
+        //call resource service
         byte[] bytes = callResourceService(resourceId);
-        Song parsedSong = parseBytes(bytes, Long.parseLong(resourceId));
+        Song parsedSong = songParser.parseBytes(bytes, Long.parseLong(resourceId));
+
+        //call song service
         callSongService(parsedSong);
     }
 
@@ -63,7 +70,7 @@ public class ProcessorServiceImpl extends AbstractSongParser {
         return retry;
     }
 
-    private byte[] callResourceService(String resourceId) {
+    public byte[] callResourceService(String resourceId) {
         return restClient
                 .get()
                 .uri(callResource + "/" + resourceId)

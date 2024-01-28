@@ -1,4 +1,4 @@
-package com.example.resourceprocessor.service;
+package com.example.resourceprocessor.parser;
 
 import com.example.resourceprocessor.model.Song;
 import org.apache.tika.exception.TikaException;
@@ -7,13 +7,15 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.mp3.Mp3Parser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public abstract class AbstractSongParser implements ProcessorService {
+@Component
+public class SongParser {
 
     private static final String NAME = "dc:title";
     private static final String ARTIST = "xmpDM:artist";
@@ -21,7 +23,7 @@ public abstract class AbstractSongParser implements ProcessorService {
     private static final String DURATION = "xmpDM:duration";
     private static final String YEAR = "xmpDM:releaseDate";
 
-    protected Song parseBytes(byte[] file, Long resourceId) throws IOException, TikaException, SAXException {
+    public Song parseBytes(byte[] file, Long resourceId) throws IOException, TikaException, SAXException {
 
         InputStream inputStream = new ByteArrayInputStream(file);
 

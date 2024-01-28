@@ -1,32 +1,28 @@
 package com.example.resourceprocessor.controller;
 
 import com.example.resourceprocessor.service.ProcessorServiceImpl;
-import org.apache.tika.exception.TikaException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
 
 @RestController
-@RequestMapping("/test")
-public class TestController {
+@RequestMapping("/processor")
+public class ResourceProcessorController {
 
     private final ProcessorServiceImpl processorService;
 
-    public TestController(ProcessorServiceImpl processorService) {
+    public ResourceProcessorController(ProcessorServiceImpl processorService) {
         this.processorService = processorService;
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<?> testCallingServices(@PathVariable String id) throws TikaException, IOException, SAXException {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> callService(@PathVariable String id) {
 
-        processorService.consume(id);
+        byte[] bytes = processorService.callResourceService(id);
 
-        return new ResponseEntity<>(id, HttpStatus.OK);
+        return new ResponseEntity<>(bytes, HttpStatus.OK);
     }
 }
