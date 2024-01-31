@@ -136,6 +136,19 @@
             <version>7.15.0</version>
             <scope>test</scope>
         </dependency>
+
+        <!--contract testing-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-contract-verifier</artifactId>
+            <version>4.1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -155,6 +168,16 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-contract-maven-plugin</artifactId>
+                <version>4.1.1</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <baseClassForTests>com.example.songservice.service.SongContractTest</baseClassForTests>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -1,11 +1,11 @@
 package com.example.resourceservice.service;
 
+import com.example.resourceservice.config.AWSConfig;
 import com.example.resourceservice.model.Resource;
 import com.example.resourceservice.repository.ResourceRepository;
 import org.apache.tika.exception.TikaException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -26,6 +26,8 @@ class ResourceServiceImplTest {
     private S3Service s3Service;
     @Mock
     private Resource resource;
+    @Mock
+    AWSConfig awsConfig;
 
     private MockMultipartFile file;
     private ResourceService resourceService;
@@ -40,7 +42,6 @@ class ResourceServiceImplTest {
     }
 
     @Test
-    @Disabled
     public void addResourceTest() throws IOException, TikaException, SAXException {
         String bucketName = "resources";
 
