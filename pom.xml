@@ -16,6 +16,7 @@
         <module>service-discovery</module>
         <module>gateway-service</module>
         <module>resource-processor</module>
+        <module>storage-service</module>
     </modules>
 
 </project>
