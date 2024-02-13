@@ -33,6 +33,9 @@ public class ProcessorServiceImpl implements ProcessorService {
     @Value("${url.call.songs}")
     private String callSongs;
 
+    @Value("${url.call.resources.process}")
+    private String callResourceForProcess;
+
     public ProcessorServiceImpl(RestClient restClient, SongParser songParser) {
         this.restClient = restClient;
         this.songParser = songParser;
@@ -45,6 +48,9 @@ public class ProcessorServiceImpl implements ProcessorService {
 
         //call song service
         callSongService(parsedSong);
+
+        //trigger resource service with song id to move file to permanent
+        callResourceServiceForProcessing(parsedSong.getResourceId());
     }
 
     @KafkaListener(topics = "resource-topic", groupId = "processor")
@@ -86,5 +92,13 @@ public class ProcessorServiceImpl implements ProcessorService {
                 .body(parsedSong)
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    public void callResourceServiceForProcessing(Long resourceId) {
+        restClient.get()
+                .uri(callResourceForProcess + resourceId)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(String.class);
     }
 }

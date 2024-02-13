@@ -58,4 +58,9 @@ public class ResourceController {
     public ResponseEntity<?> getResourceFromStorage(@PathVariable String id) throws IOException, TikaException, SAXException {
         return new ResponseEntity<>(resourceService.getResourceFromBucket(id), HttpStatus.OK);
     }
+
+    @GetMapping("/process/{id}")
+    public ResponseEntity<?> moveResourceToPermanent(@PathVariable Long id) {
+        return new ResponseEntity<>(resourceService.moveResourceToPermanent(id), HttpStatus.OK);
+    }
 }

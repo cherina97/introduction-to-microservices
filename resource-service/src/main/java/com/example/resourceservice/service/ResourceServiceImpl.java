@@ -4,6 +4,8 @@ import com.example.resourceservice.exception.InvalidFileFormatException;
 import com.example.resourceservice.exception.ResourceNotFoundException;
 import com.example.resourceservice.model.Resource;
 import com.example.resourceservice.repository.ResourceRepository;
+import com.google.common.util.concurrent.AtomicDouble;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +20,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ResourceServiceImpl implements ResourceService {
 
     private final ResourceRepository resourceRepository;
@@ -41,8 +44,9 @@ public class ResourceServiceImpl implements ResourceService {
             throw new InvalidFileFormatException("File should have .mp3 extension");
         }
 
-        //save the source file to a cloud storage
-        String bucketName = s3Service.addResource(file);
+        //save the source file to a cloud storage STAGING
+        String bucketName = s3Service.addResourceToStaging(file);
+        log.info("Mowing file to STAGING bucket");
 
         Resource resource = new Resource();
         resource.setBucket(bucketName);
@@ -55,6 +59,18 @@ public class ResourceServiceImpl implements ResourceService {
         kafkaTemplate.send(topic, savedResource.getId().toString());
 
         return savedResource.getId();
+    }
+
+    @Override
+    public Long moveResourceToPermanent(Long resourceId) {
+        String resourceKey = resourceRepository.findById(resourceId)
+                .map(Resource::getResourceKey)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found by id = " + resourceId));
+
+        log.info("Mowing resource with id " + resourceId + ", key: " + resourceKey + " to PERMANENT bucket");
+        s3Service.moveResourceToPermanent(resourceKey);
+
+        return resourceId;
     }
 
     @Override

@@ -19,4 +19,6 @@ public interface ResourceService {
 
     byte[] getResourceFromBucket(String resourceId) throws IOException, TikaException, SAXException;
 
+    Long moveResourceToPermanent(Long id);
+
 }

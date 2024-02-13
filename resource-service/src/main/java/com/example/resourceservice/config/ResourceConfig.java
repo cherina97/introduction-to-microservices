@@ -8,13 +8,11 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class ResourceConfig {
 
-    @Value("${song.service.url}")
-    private String addressBaseUrl;
+//    @Value("${song.service.url}")
+//    private String addressBaseUrl;
 
     @Bean
     public RestClient restClient() {
-        return RestClient.builder()
-                .baseUrl(addressBaseUrl)
-                .build();
+        return RestClient.create();
     }
 }

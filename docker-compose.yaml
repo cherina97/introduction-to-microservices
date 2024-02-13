@@ -89,7 +89,8 @@ services:
     #      mode: replicated
     #      replicas: 2
     ports:
-      - '8082-8083:8080'
+      #      - '8082-8083:8080'
+      - '8082:8080'
     depends_on:
       - song-db
       - service-discovery
@@ -131,3 +132,27 @@ services:
       - resource-service/.env
     volumes:
       - ./resource-service/resource-init.sql:/docker-entrypoint-initdb.d/resource-init.sql
+
+  storage-service:
+    image: 'storage-service:latest'
+    build:
+      context: storage-service
+    container_name: 'storage-service'
+    ports:
+      - '8085:8080'
+    depends_on:
+      - storage-db
+      - service-discovery
+      - gateway-service
+    env_file:
+      - storage-service/.env
+
+  storage-db:
+    image: 'postgres:13'
+    container_name: storage-db
+    ports:
+      - '5434:5432'
+    env_file:
+      - storage-service/.env
+    volumes:
+      - ./storage-service/storage-init.sql:/docker-entrypoint-initdb.d/storage-init.sql

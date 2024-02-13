@@ -15,4 +15,8 @@ public interface S3Service {
 
     byte[] getResource(String key) throws IOException;
 
+    String addResourceToStaging(MultipartFile file) throws IOException;
+
+    void moveResourceToPermanent(String key);
+
 }
