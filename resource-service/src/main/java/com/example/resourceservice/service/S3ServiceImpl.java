@@ -7,7 +7,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.example.resourceservice.model.StorageObject;
 import com.example.resourceservice.model.StorageType;
-import com.netflix.discovery.EurekaClient;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,9 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,9 +32,6 @@ public class S3ServiceImpl implements S3Service {
     private final AmazonS3 amazonS3;
     private final RestClient restClient;
 
-    private String stagingBucket;
-    private String permanentBucket;
-
     @Autowired
     public S3ServiceImpl(AmazonS3 amazonS3, RestClient restClient) {
         this.amazonS3 = amazonS3;
@@ -44,19 +39,43 @@ public class S3ServiceImpl implements S3Service {
     }
 
     @Override
-    public String addResource(MultipartFile file) throws IOException {
+    public String addResource(MultipartFile file) {
         return getBucketOfSavedFile(file, bucketName);
     }
 
     @Override
-    public String addResourceToStaging(MultipartFile file) throws IOException {
-        validateCreatedBuckets();
+    @CircuitBreaker(name = "StorageService", fallbackMethod = "getStagingStorageDefault")
+    public String addResourceToStaging(MultipartFile file) {
+        String stagingBucket = getStagingStorage().getBucket();
+        amazonS3.createBucket(stagingBucket);
+
         return getBucketOfSavedFile(file, stagingBucket);
     }
 
-    private String getBucketOfSavedFile(MultipartFile file, String bucketName) throws IOException {
+    public StorageObject getStagingStorage() {
+        return restClient.get()
+                .uri(callStorages + "/1")
+                .retrieve()
+                .body(StorageObject.class);
+    }
+
+    public String getStagingStorageDefault(MultipartFile file, Throwable ex) {
+        log.warn("Calling Circuit Breaker fallback Method");
+        log.warn("Fallback Method with exception " + ex);
+
+        StorageObject storage = new StorageObject(1L, StorageType.STAGING.name(), "staging", "/staging");
+        amazonS3.createBucket(storage.getBucket());
+        return getBucketOfSavedFile(file, storage.getBucket());
+    }
+
+    private String getBucketOfSavedFile(MultipartFile file, String bucketName) {
         String key = file.getOriginalFilename();
-        InputStream inputStream = file.getInputStream();
+        InputStream inputStream = null;
+        try {
+            inputStream = file.getInputStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
@@ -67,22 +86,58 @@ public class S3ServiceImpl implements S3Service {
         return bucketName;
     }
 
+    @CircuitBreaker(name = "StorageService", fallbackMethod = "getPermStorageDefault")
     @Override
     public void moveResourceToPermanent(String key) {
-        amazonS3.copyObject(stagingBucket, key, permanentBucket, key);
+        List<StorageObject> storages = getStorages();
+
+        String permBucket = storages.stream()
+                .filter(st -> st.getStorageType().equals(StorageType.PERMANENT.name()))
+                .findFirst()
+                .orElse(null)
+                .getBucket();
+
+        String stagingBucket = storages.stream()
+                .filter(st -> st.getStorageType().equals(StorageType.STAGING.name()))
+                .findFirst()
+                .orElse(null)
+                .getBucket();
+
+        amazonS3.createBucket(permBucket);
+        amazonS3.copyObject(stagingBucket, key, permBucket, key);
         amazonS3.deleteObject(stagingBucket, key);
+    }
+
+    public List<StorageObject> getStorages() {
+        return restClient.get()
+                .uri(callStorages)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+    }
+
+    public void getPermStorageDefault(String key, Throwable ex) {
+        log.warn("Calling Circuit Breaker fallback Method");
+        log.warn("Fallback Method with exception " + ex);
+
+        StorageObject storage = new StorageObject(2L, StorageType.PERMANENT.name(), "permanent", "/permanent");
+        String bucket = storage.getBucket();
+
+        amazonS3.createBucket(bucket);
+        amazonS3.copyObject("staging", key, bucket, key);
+        amazonS3.deleteObject("staging", key);
     }
 
     @Override
     public byte[] getResource(String key) throws IOException {
-        S3Object amazonS3Object = amazonS3.getObject(stagingBucket, key);
+        S3Object amazonS3Object = amazonS3.getObject("staging", key);
 
         return amazonS3Object.getObjectContent().readAllBytes();
     }
 
     @Override
     public void deleteResources(List<String> keys) {
-        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(stagingBucket)
+        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest("staging")
                 .withKeys(keys.toArray(String[]::new));
 
         amazonS3.deleteObjects(deleteObjectsRequest);
@@ -93,52 +148,5 @@ public class S3ServiceImpl implements S3Service {
         return amazonS3.listObjects(bucketName).getObjectSummaries().stream()
                 .map(S3ObjectSummary::getKey)
                 .collect(Collectors.toList());
-    }
-
-    public void validateCreatedBuckets() {
-        List<StorageObject> storages = getStorages();
-
-        Optional<StorageObject> staging = Optional.ofNullable(storages).orElse(Collections.emptyList()).stream()
-                .filter(storage -> storage.getBucket().equals(StorageType.STAGING.name()))
-                .findFirst();
-
-        Optional<StorageObject> permanent = Optional.ofNullable(storages).orElse(Collections.emptyList()).stream()
-                .filter(storage -> storage.getBucket().equals(StorageType.PERMANENT.name()))
-                .findFirst();
-
-        createStagingBucket(staging);
-        createPermanentBucket(permanent);
-    }
-
-    public void createStagingBucket(Optional<StorageObject> staging) {
-        if (staging.isPresent()) {
-            amazonS3.createBucket(staging.get().getBucket());
-            this.stagingBucket = staging.get().getBucket();
-        } else {
-            amazonS3.createBucket("staging");
-            this.stagingBucket = "staging";
-        }
-    }
-
-    public void createPermanentBucket(Optional<StorageObject> permanent) {
-        if (permanent.isPresent()) {
-            amazonS3.createBucket(permanent.get().getBucket());
-            this.permanentBucket = permanent.get().getBucket();
-        } else {
-            amazonS3.createBucket("permanent");
-            this.permanentBucket = "permanent";
-        }
-    }
-
-//    private String getStorageServiceUrl() {
-//        return eurekaClient.getNextServerFromEureka("gateway-service", false).getHomePageUrl() + "storages";
-//    }
-
-    public List<StorageObject> getStorages() {
-        return restClient.get()
-                .uri(callStorages)
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<StorageObject>>() {
-                });
     }
 }
