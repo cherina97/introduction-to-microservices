@@ -4,3 +4,27 @@ scrape_configs:
     scrape_interval: 3s
     static_configs:
       - targets: ['resource-service:8080']
+
+  - job_name: 'resource-processor'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 3s
+    static_configs:
+      - targets: [ 'resource-processor:8080' ]
+
+  - job_name: 'song-service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 3s
+    static_configs:
+      - targets: [ 'song-service:8080' ]
+
+  - job_name: 'storage-service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 3s
+    static_configs:
+      - targets: [ 'storage-service:8080' ]
+
+  - job_name: 'gateway-service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 3s
+    static_configs:
+      - targets: [ 'gateway-service:8080' ]

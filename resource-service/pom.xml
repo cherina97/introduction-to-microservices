@@ -157,6 +157,23 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
             <version>1.12.3</version>
         </dependency>
+
+        <!--tracing-->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.zipkin.reporter2</groupId>
+            <artifactId>zipkin-reporter-brave</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.zipkin.reporter2</groupId>
+            <artifactId>zipkin-sender-urlconnection</artifactId>
+            <version>3.3.0</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

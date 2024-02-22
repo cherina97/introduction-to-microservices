@@ -171,10 +171,13 @@ services:
     container_name: grafana
     ports:
       - '3000:3000'
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/main.yaml
       - ./grafana/dashboard.yml:/etc/grafana/provisioning/dashboards/main.yaml
       - ./grafana/dashboards:/var/lib/grafana/dashboards
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - '9411:9411'

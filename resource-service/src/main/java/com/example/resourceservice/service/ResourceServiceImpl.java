@@ -4,7 +4,6 @@ import com.example.resourceservice.exception.InvalidFileFormatException;
 import com.example.resourceservice.exception.ResourceNotFoundException;
 import com.example.resourceservice.model.Resource;
 import com.example.resourceservice.repository.ResourceRepository;
-import com.google.common.util.concurrent.AtomicDouble;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +53,11 @@ public class ResourceServiceImpl implements ResourceService {
 
         //save resource location (bucket + name)
         Resource savedResource = resourceRepository.save(resource);
+        log.info("Saving file to DB");
 
         //pass message to the topic
         kafkaTemplate.send(topic, savedResource.getId().toString());
+        log.info("Pissing message to the topic " + topic);
 
         return savedResource.getId();
     }
