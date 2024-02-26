@@ -1,6 +1,5 @@
 package com.example.resourceprocessor;
 
-import com.example.resourceprocessor.controller.ResourceProcessorController;
 import com.example.resourceprocessor.model.Song;
 import com.example.resourceprocessor.service.ProcessorService;
 import org.junit.Test;
@@ -22,9 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
         ids = "com.example:song-service:+:stubs:8082",
         stubsMode = StubRunnerProperties.StubsMode.LOCAL)
 public class SongServiceContractTest {
-
-    @MockBean
-    ResourceProcessorController resourceProcessorController;
 
     @MockBean
     ProcessorService processorService;

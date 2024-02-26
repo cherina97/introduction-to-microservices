@@ -57,7 +57,7 @@ public class ResourceServiceImpl implements ResourceService {
 
         //pass message to the topic
         kafkaTemplate.send(topic, savedResource.getId().toString());
-        log.info("Pissing message to the topic " + topic);
+        log.info("[Resource Service] Pissing message to the topic " + topic);
 
         return savedResource.getId();
     }
@@ -82,17 +82,17 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public byte[] getResourceFromBucket(String resourceId) throws IOException {
+    public byte[] getResourceFromStaging(String resourceId) throws IOException {
         long id = Long.parseLong(resourceId);
 
         Resource resource = resourceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found by id = " + id));
 
-        return s3Service.getResource(resource.getResourceKey());
+        return s3Service.getResource(resource.getResourceKey(), "staging");
     }
 
     @Override
-    public List<Long> deleteResources(List<Long> ids) {
+    public List<Long> deleteResources(List<Long> ids, String bucketName) {
         List<Resource> resourcesToDelete = new ArrayList<>();
 
         for (Long id : ids) {
@@ -102,7 +102,7 @@ public class ResourceServiceImpl implements ResourceService {
         resourceRepository.deleteAll(resourcesToDelete);
 
         List<String> keyToDelete = resourcesToDelete.stream().map(Resource::getResourceKey).toList();
-        s3Service.deleteResources(keyToDelete);
+        s3Service.deleteResources(keyToDelete, bucketName);
 
         return resourcesToDelete.stream().map(Resource::getId).collect(Collectors.toList());
     }

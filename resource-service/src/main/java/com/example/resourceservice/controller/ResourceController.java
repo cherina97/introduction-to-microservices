@@ -39,9 +39,9 @@ public class ResourceController {
         return new ResponseEntity<>(key, HttpStatus.OK);
     }
 
-    @DeleteMapping
-    public List<Long> deleteResource(@RequestParam(value = "ids") List<Long> ids) {
-        return resourceService.deleteResources(ids);
+    @DeleteMapping("/{bucketName}")
+    public List<Long> deleteResource(@RequestParam(value = "ids") List<Long> ids, @PathVariable String bucketName) {
+        return resourceService.deleteResources(ids, bucketName);
     }
 
     @GetMapping()
@@ -55,8 +55,8 @@ public class ResourceController {
     }
 
     @GetMapping("/s3/{id}")
-    public ResponseEntity<?> getResourceFromStorage(@PathVariable String id) throws IOException, TikaException, SAXException {
-        return new ResponseEntity<>(resourceService.getResourceFromBucket(id), HttpStatus.OK);
+    public ResponseEntity<?> getResourceFromStaging(@PathVariable String id) throws IOException, TikaException, SAXException {
+        return new ResponseEntity<>(resourceService.getResourceFromStaging(id), HttpStatus.OK);
     }
 
     @GetMapping("/process/{id}")

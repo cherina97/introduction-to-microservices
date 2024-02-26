@@ -16,19 +16,19 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      KAFKA_CREATE_TOPICS: resource-topic:1:1
+      KAFKA_CREATE_TOPICS: resource-topic:1:1,resource-consume-topic:1:1
     depends_on:
       - zookeeper
 
-  kafka-ui:
-    container_name: kafka-ui
-    image: provectuslabs/kafka-ui:latest
-    ports:
-      - '9099:8080'
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-      DYNAMIC_CONFIG_ENABLED: true
+#  kafka-ui:
+#    container_name: kafka-ui
+#    image: provectuslabs/kafka-ui:latest
+#    ports:
+#      - '9099:8080'
+#    environment:
+#      KAFKA_CLUSTERS_0_NAME: local
+#      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+#      DYNAMIC_CONFIG_ENABLED: true
 
   resource-processor:
     image: 'resource-processor:latest'
@@ -41,7 +41,7 @@ services:
       - resource-service
       - kafka
     env_file:
-      - resource-processor/.env
+      - configs/resource-processor.env
 
   localstack:
     container_name: 'localstack'
@@ -54,7 +54,7 @@ services:
       - LOCALSTACK_HOST=localhost
       - DEBUG=1
     env_file:
-      - resource-service/.env
+      - configs/resource-service.env
     volumes:
       - ./resource-service/init_s3.sh:/etc/localstack/init/ready.d/init_s3.sh
 
@@ -66,7 +66,7 @@ services:
     ports:
       - '8761:8761'
     env_file:
-      - service-discovery/.env
+      - configs/service-discovery.env
 
   gateway-service:
     build:
@@ -78,7 +78,7 @@ services:
     ports:
       - '8090:8080'
     env_file:
-      - gateway-service/.env
+      - configs/gateway-service.env
 
   song-service:
     image: 'song-service:latest'
@@ -96,7 +96,7 @@ services:
       - service-discovery
       - gateway-service
     env_file:
-      - song-service/.env
+      - configs/song-service.env
 
   song-db:
     image: 'postgres:13'
@@ -104,9 +104,9 @@ services:
     ports:
       - '5432:5432'
     env_file:
-      - song-service/.env
+      - configs/song-service.env
     volumes:
-      - ./song-service/song-init.sql:/docker-entrypoint-initdb.d/song-init.sql
+      - ./db/song-init.sql:/docker-entrypoint-initdb.d/song-init.sql
 
   resource-service:
     image: 'resource-service:latest'
@@ -121,7 +121,7 @@ services:
       - service-discovery
       - gateway-service
     env_file:
-      - resource-service/.env
+      - configs/resource-service.env
 
   resource-db:
     image: 'postgres:13'
@@ -129,9 +129,9 @@ services:
     ports:
       - '5433:5432'
     env_file:
-      - resource-service/.env
+      - configs/resource-service.env
     volumes:
-      - ./resource-service/resource-init.sql:/docker-entrypoint-initdb.d/resource-init.sql
+      - ./db/resource-init.sql:/docker-entrypoint-initdb.d/resource-init.sql
 
   storage-service:
     image: 'storage-service:latest'
@@ -145,7 +145,7 @@ services:
       - service-discovery
       - gateway-service
     env_file:
-      - storage-service/.env
+      - configs/storage-service.env
 
   storage-db:
     image: 'postgres:13'
@@ -153,9 +153,9 @@ services:
     ports:
       - '5434:5432'
     env_file:
-      - storage-service/.env
+      - configs/storage-service.env
     volumes:
-      - ./storage-service/storage-init.sql:/docker-entrypoint-initdb.d/storage-init.sql
+      - ./db/storage-init.sql:/docker-entrypoint-initdb.d/storage-init.sql
 
   prometheus:
     image: prom/prometheus:v2.44.0

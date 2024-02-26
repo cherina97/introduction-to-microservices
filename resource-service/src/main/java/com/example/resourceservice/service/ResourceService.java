@@ -13,11 +13,11 @@ public interface ResourceService {
 
     String getResourceKeyById(Long id);
 
-    List<Long> deleteResources(List<Long> ids);
+    List<Long> deleteResources(List<Long> ids, String bucketName);
 
     List<Long> getAllResourcesIds();
 
-    byte[] getResourceFromBucket(String resourceId) throws IOException, TikaException, SAXException;
+    byte[] getResourceFromStaging(String resourceId) throws IOException, TikaException, SAXException;
 
     Long moveResourceToPermanent(Long id);
 
